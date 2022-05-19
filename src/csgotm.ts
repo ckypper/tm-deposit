@@ -15,13 +15,11 @@ export const initCsgoTMSocket = async (config: ConfigProps) => {
 
   socket.on('connect', async function (connection) {
     const key = await getWsAuth(config);
-    message(config, 'Websocket Client Connected', Status.SUCCESS);
     if (key) {
       connection.send(key.wsAuth);
+      message(config, 'Websocket Client Connected', Status.SUCCESS);
       ping(config);
-
       setInterval(() => ping(config), 180000);
-
       setInterval(() => {
         connection.send('ping');
       }, 45000);
