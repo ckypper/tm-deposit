@@ -1,6 +1,6 @@
 import { ConfigProps } from './interfaces';
 import { client } from 'websocket';
-import { getTradeRequest, getWsAuth } from './utils/csgotm';
+import { getTradeRequest, getWsAuth, ping } from './utils/csgotm';
 import { sendOffer } from './utils/steam';
 import { message, Status } from './utils/message';
 
@@ -18,6 +18,13 @@ export const initCsgoTMSocket = async (config: ConfigProps) => {
     message(config, 'Websocket Client Connected', Status.SUCCESS);
     if (key) {
       connection.send(key.wsAuth);
+      ping(config);
+
+      setInterval(() => ping(config), 180000);
+
+      setInterval(() => {
+        connection.send('ping');
+      }, 45000);
     }
     connection.on('error', function (error) {
       console.log('Connection Error: ' + error.toString());
@@ -27,16 +34,18 @@ export const initCsgoTMSocket = async (config: ConfigProps) => {
     });
     connection.on('message', function (message) {
       if (message.type === 'utf8') {
-        const jsonParse = JSON.parse(message.utf8Data);
-        const dataParse = JSON.parse(jsonParse.data);
-        switch (jsonParse.type) {
-          case 'itemout_new_go':
-            onSellingItem(config, dataParse.ui_id, dataParse.i_market_name, dataParse.ui_price);
-            break;
-          case 'itemstatus_go':
-            onFulfilledItem(config, dataParse.id, dataParse.status);
-            break;
-        }
+        try {
+          const jsonParse = JSON.parse(message.utf8Data);
+          const dataParse = JSON.parse(jsonParse.data);
+          switch (jsonParse.type) {
+            case 'itemout_new_go':
+              onSellingItem(config, dataParse.ui_id, dataParse.i_market_name, dataParse.ui_price);
+              break;
+            case 'itemstatus_go':
+              onFulfilledItem(config, dataParse.id, dataParse.status);
+              break;
+          }
+        } catch (error) {}
       }
     });
   });

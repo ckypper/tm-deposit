@@ -8,7 +8,7 @@ export enum Status {
   SUCCESS,
 }
 
-export const message = (config: ConfigProps, message: string, status: Status) => {
+export const message = (config: ConfigProps, message: string, status: Status, notDiscord?: boolean) => {
   const { name } = config;
   const formatMessage = `[${name} - ${dayjs(new Date()).format('DD/MM/YYYY HH:mm:ss')}] ${message}`;
   switch (status) {
@@ -23,7 +23,7 @@ export const message = (config: ConfigProps, message: string, status: Status) =>
       break;
   }
 
-  if (config.discord.active) {
+  if (config.discord.active && !notDiscord) {
     axios.post(config.discord.hook, {
       content: `${formatMessage}`,
     });
