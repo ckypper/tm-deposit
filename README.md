@@ -1,5 +1,5 @@
-# Empire deposit
-Auto send & confirm offer your deposit item in csgoempire
+# CsgoTM deposit
+Auto send & confirm offer your deposit item in CsgoTM
 
 # Installation
 * Install NodeJS
