@@ -10,6 +10,7 @@ const steamManager = {};
 
 const retryAttempt = 3;
 const retryTimeout = 0.5; //minutes;
+const cancelAfterTime = 7;
 
 const sendProcess = async (config: ConfigProps, items: Item[], tradeUrl: string, retry: number, msg?: string) => {
   const manager = steamManager[config.steam.accountName].manager;
@@ -39,8 +40,10 @@ const confirmProcess = async (config: ConfigProps, offer, items: Item[], retry: 
     const steam = steamManager[config.steam.accountName].steam;
     await confirm(offer, config.steam.identitySecret, steam);
     message(config, `Confirm offer successfully`, Status.SUCCESS);
+    setTimeout(() => {
+      offer.cancel();
+    }, cancelAfterTime * 60000);
   } catch (error) {
-    console.log(error, error.response);
     if (retry === retryAttempt) {
       message(config, `Confirm offer failed in ${retryAttempt} times. Ignore the trade`, Status.FAILED);
     } else {
