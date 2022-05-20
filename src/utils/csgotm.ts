@@ -29,9 +29,6 @@ export const ping = async (config: ConfigProps) => {
   try {
     const url = `https://market.csgo.com/api/v2/ping?key=${config.csgotm.apikey}`;
     const { data } = await axios.get<TradeRequestGiveResponse>(url);
-    if (data.success) {
-      message(config, `Ping`, Status.SUCCESS, true);
-    }
   } catch (error) {
     message(config, `Ping failed`, Status.FAILED, true);
   }

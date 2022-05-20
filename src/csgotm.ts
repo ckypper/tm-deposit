@@ -5,6 +5,8 @@ import { sendOffer } from './utils/steam';
 import { message, Status } from './utils/message';
 
 const sellingItem: { id: string; name: string }[] = [];
+let pingAPIInterval = null;
+let pingWSInterval = null;
 
 export const initCsgoTMSocket = async (config: ConfigProps) => {
   const socket = new client();
@@ -19,8 +21,8 @@ export const initCsgoTMSocket = async (config: ConfigProps) => {
       connection.send(key.wsAuth);
       message(config, 'Websocket Client Connected', Status.SUCCESS);
       ping(config);
-      setInterval(() => ping(config), 180000);
-      setInterval(() => {
+      pingAPIInterval = setInterval(() => ping(config), 180000);
+      pingWSInterval = setInterval(() => {
         connection.send('ping');
       }, 45000);
     }
@@ -28,7 +30,10 @@ export const initCsgoTMSocket = async (config: ConfigProps) => {
       console.log('Connection Error: ' + error.toString());
     });
     connection.on('close', function () {
-      console.log('echo-protocol Connection Closed');
+      console.log('Socket is closed. Reconnect will be attempted in 1 second.');
+      clearInterval(pingAPIInterval);
+      clearInterval(pingWSInterval);
+      initCsgoTMSocket(config);
     });
     connection.on('message', function (message) {
       if (message.type === 'utf8') {
@@ -70,11 +75,15 @@ const onSellingItem = async (config: ConfigProps, id: string, name: string, pric
   message(config, `Someone buying your ${name} for ${price}$`, Status.SUCCESS);
   const tradeRequest = await getTradeRequest(config);
   if (tradeRequest && tradeRequest.success) {
-    await sendOffer(
-      config,
-      tradeRequest.offer.items,
-      `https://steamcommunity.com/tradeoffer/new/?partner=${tradeRequest.offer.partner}&token=${tradeRequest.offer.token}`,
-      tradeRequest.offer.tradeoffermessage,
-    );
+    setTimeout(() => {
+      sendOffer(
+        config,
+        tradeRequest.offer.items,
+        `https://steamcommunity.com/tradeoffer/new/?partner=${tradeRequest.offer.partner}&token=${tradeRequest.offer.token}`,
+        tradeRequest.offer.tradeoffermessage,
+      );
+    }, 30000);
+  } else {
+    console.log(tradeRequest);
   }
 };
