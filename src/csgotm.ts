@@ -19,6 +19,7 @@ export const initCsgoTMSocket = async (config: ConfigProps) => {
     const key = await getWsAuth(config);
     if (key) {
       connection.send(key.wsAuth);
+      connection.send('history_go');
       message(config, 'Websocket Client Connected', Status.SUCCESS);
       ping(config);
       pingAPIInterval = setInterval(() => ping(config), 180000);
@@ -40,9 +41,10 @@ export const initCsgoTMSocket = async (config: ConfigProps) => {
         try {
           const jsonParse = JSON.parse(message.utf8Data);
           const dataParse = JSON.parse(jsonParse.data);
+          console.log(dataParse);
           switch (jsonParse.type) {
             case 'itemout_new_go':
-              onSellingItem(config, dataParse.ui_id, dataParse.i_market_name, dataParse.ui_price);
+              onSellingItem(config, dataParse.ui_id, dataParse.i_market_hash_name, dataParse.ui_price);
               break;
             case 'itemstatus_go':
               onFulfilledItem(config, dataParse.id, dataParse.status);
