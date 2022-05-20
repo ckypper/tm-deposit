@@ -3,6 +3,7 @@ import { client } from 'websocket';
 import { getTradeRequest, getWsAuth, ping } from './utils/csgotm';
 import { sendOffer } from './utils/steam';
 import { message, Status } from './utils/message';
+import { timeout } from './utils';
 
 const sellingItem: { id: string; name: string }[] = [];
 let pingAPIInterval = null;
@@ -74,6 +75,7 @@ const onFulfilledItem = async (config: ConfigProps, id: number, status: number) 
 const onSellingItem = async (config: ConfigProps, id: string, name: string, price: number) => {
   sellingItem.push({ id, name });
   message(config, `Someone buying your ${name} for ${price}$`, Status.SUCCESS);
+  await timeout(5000);
   const tradeRequest = await getTradeRequest(config);
   if (tradeRequest && tradeRequest.success) {
     setTimeout(() => {
