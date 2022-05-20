@@ -24,17 +24,9 @@ const sendProcess = async (config: ConfigProps, items: Item[], tradeUrl: string,
     return offer;
   } catch (error) {
     if (retry === retryAttempt) {
-      message(
-        config,
-        `Create offer failed in ${retryAttempt} times. Ignore the trade`,
-        Status.FAILED,
-      );
+      message(config, `Create offer failed in ${retryAttempt} times. Ignore the trade`, Status.FAILED);
     } else {
-      message(
-        config,
-        `Create offer failed. Retry in ${retryTimeout} minute`,
-        Status.FAILED,
-      );
+      message(config, `Create offer failed. Retry in ${retryTimeout} minute`, Status.FAILED);
       await loginSteam(config);
       await timeout(retryTimeout * 60000);
       return await sendProcess(config, items, tradeUrl, retry + 1, msg);
@@ -49,18 +41,10 @@ const confirmProcess = async (config: ConfigProps, offer, items: Item[], retry: 
     message(config, `Confirm offer successfully`, Status.SUCCESS);
   } catch (error) {
     console.log(error, error.response);
-    if (retryAttempt === 3) {
-      message(
-        config,
-        `Confirm offer failed in ${retryAttempt} times. Ignore the trade`,
-        Status.FAILED,
-      );
+    if (retry === retryAttempt) {
+      message(config, `Confirm offer failed in ${retryAttempt} times. Ignore the trade`, Status.FAILED);
     } else {
-      message(
-        config,
-        `Confirm offer failed. Retry in ${retryTimeout} minute`,
-        Status.FAILED,
-      );
+      message(config, `Confirm offer failed. Retry in ${retryTimeout} minute`, Status.FAILED);
       await loginSteam(config);
       await timeout(retryTimeout * 60000);
       return await confirmProcess(config, offer, items, retry + 1);
