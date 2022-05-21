@@ -44,10 +44,16 @@ export const initCsgoTMSocket = async (config: ConfigProps) => {
           const dataParse = JSON.parse(jsonParse.data);
           switch (jsonParse.type) {
             case 'itemout_new_go':
-              onSellingItem(config, dataParse.ui_asset, dataParse.i_market_hash_name, dataParse.ui_price);
+              onSellingItem(
+                config,
+                dataParse.ui_asset,
+                dataParse.i_market_hash_name,
+                dataParse.ui_price,
+                dataParse.ui_id,
+              );
               break;
             case 'itemstatus_go':
-              onFulfilledItem(config, dataParse.ui_asset, dataParse.status);
+              onFulfilledItem(config, dataParse.id, dataParse.status);
               break;
           }
         } catch (error) {}
@@ -72,14 +78,14 @@ const onFulfilledItem = async (config: ConfigProps, id: number, status: number) 
   }
 };
 
-const onSellingItem = async (config: ConfigProps, id: string, name: string, price: number) => {
-  sellingItem.push({ id, name });
+const onSellingItem = async (config: ConfigProps, assetid: string, name: string, price: number, tm_id: string) => {
+  sellingItem.push({ id: tm_id, name });
   message(config, `Someone buying your ${name} for ${price}$`, Status.SUCCESS);
   await timeout(30000);
   const tradeRequest = await getTradeRequest(config);
 
   if (tradeRequest && tradeRequest.success) {
-    const findOffer = tradeRequest.offers.find((offer) => offer.items.some((item) => item.assetid.toString() === id));
+    const findOffer = tradeRequest.offers.find((offer) => offer.items.some((item) => item.assetid.toString() === assetid));
     if (findOffer) {
       sendOffer(
         config,
