@@ -47,7 +47,7 @@ export const initCsgoTMSocket = async (config: ConfigProps) => {
               onSellingItem(config, dataParse.ui_asset, dataParse.i_market_hash_name, dataParse.ui_price);
               break;
             case 'itemstatus_go':
-              onFulfilledItem(config, dataParse.id, dataParse.status);
+              onFulfilledItem(config, dataParse.ui_asset, dataParse.status);
               break;
           }
         } catch (error) {}
