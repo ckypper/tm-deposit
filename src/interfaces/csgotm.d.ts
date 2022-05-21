@@ -1,11 +1,12 @@
 export interface TradeRequestGiveResponse {
   success: boolean;
-  offer: {
+  offers: {
+    hash: string;
     partner: number;
     token: string;
     tradeoffermessage: string;
     items: Item[];
-  };
+  }[];
 }
 
 export interface Item {

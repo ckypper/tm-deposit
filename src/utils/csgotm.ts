@@ -16,7 +16,7 @@ export const getWsAuth = async (config: ConfigProps) => {
 
 export const getTradeRequest = async (config: ConfigProps) => {
   try {
-    const url = `https://market.csgo.com/api/v2/trade-request-give-p2p?key=${config.csgotm.apikey}`;
+    const url = `https://market.csgo.com/api/v2/trade-request-give-p2p-all?key=${config.csgotm.apikey}`;
     const { data } = await axios.get<TradeRequestGiveResponse>(url);
     return data;
   } catch (error) {

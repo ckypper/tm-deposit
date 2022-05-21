@@ -44,7 +44,7 @@ export const initCsgoTMSocket = async (config: ConfigProps) => {
           const dataParse = JSON.parse(jsonParse.data);
           switch (jsonParse.type) {
             case 'itemout_new_go':
-              onSellingItem(config, dataParse.ui_id, dataParse.i_market_hash_name, dataParse.ui_price);
+              onSellingItem(config, dataParse.ui_asset, dataParse.i_market_hash_name, dataParse.ui_price);
               break;
             case 'itemstatus_go':
               onFulfilledItem(config, dataParse.id, dataParse.status);
@@ -75,18 +75,22 @@ const onFulfilledItem = async (config: ConfigProps, id: number, status: number) 
 const onSellingItem = async (config: ConfigProps, id: string, name: string, price: number) => {
   sellingItem.push({ id, name });
   message(config, `Someone buying your ${name} for ${price}$`, Status.SUCCESS);
-  await timeout(5000);
+  await timeout(30000);
   const tradeRequest = await getTradeRequest(config);
+
   if (tradeRequest && tradeRequest.success) {
-    setTimeout(() => {
+    const findOffer = tradeRequest.offers.find((offer) => offer.items.some((item) => item.assetid.toString() === id));
+    if (findOffer) {
       sendOffer(
         config,
-        tradeRequest.offer.items,
-        `https://steamcommunity.com/tradeoffer/new/?partner=${tradeRequest.offer.partner}&token=${tradeRequest.offer.token}`,
-        tradeRequest.offer.tradeoffermessage,
+        findOffer.items,
+        `https://steamcommunity.com/tradeoffer/new/?partner=${findOffer.partner}&token=${findOffer.token}`,
+        findOffer.tradeoffermessage,
       );
-    }, 30000);
+    } else {
+      message(config, `Cannot find ${name} in csgotm list offer`, Status.FAILED);
+    }
   } else {
-    console.log(tradeRequest);
+    message(config, `Cannot get csgotm list offer`, Status.FAILED);
   }
 };
