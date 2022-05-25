@@ -8,7 +8,7 @@
     "dayjs": "^1.10.7",
     "socket.io-client": "2.4.0",
     "steam-totp": "^2.1.1",
-    "steam-tradeoffer-manager": "^2.10.4",
+    "steam-tradeoffer-manager": "^2.10.5",
     "steamcommunity": "^3.43.1",
     "ts-node": "^10.4.0",
     "typescript": "^4.5.4",
