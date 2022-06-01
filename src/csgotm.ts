@@ -6,6 +6,7 @@ import { message, Status } from './utils/message';
 import { timeout } from './utils';
 
 const sellingItem: { id: string; name: string }[] = [];
+const senedOffer = [];
 let pingAPIInterval = null;
 let pingWSInterval = null;
 
@@ -85,16 +86,18 @@ const onSellingItem = async (config: ConfigProps, assetid: string, name: string,
   const tradeRequest = await getTradeRequest(config);
 
   if (tradeRequest && tradeRequest.success) {
-    const findOffer = tradeRequest.offers.find((offer) => offer.items.some((item) => item.assetid.toString() === assetid));
-    if (findOffer) {
-      sendOffer(
+    for (let i = 0; i < tradeRequest.offers.length; i++) {
+      if (senedOffer.includes(tradeRequest.offers[i].hash)) {
+        continue;
+      }
+      senedOffer.push(tradeRequest.offers[i].hash);
+
+      await sendOffer(
         config,
-        findOffer.items,
-        `https://steamcommunity.com/tradeoffer/new/?partner=${findOffer.partner}&token=${findOffer.token}`,
-        findOffer.tradeoffermessage,
+        tradeRequest.offers[i].items,
+        `https://steamcommunity.com/tradeoffer/new/?partner=${tradeRequest.offers[i].partner}&token=${tradeRequest.offers[i].token}`,
+        tradeRequest.offers[i].tradeoffermessage,
       );
-    } else {
-      message(config, `Cannot find ${name} in csgotm list offer`, Status.FAILED);
     }
   } else {
     message(config, `Cannot get csgotm list offer`, Status.FAILED);
