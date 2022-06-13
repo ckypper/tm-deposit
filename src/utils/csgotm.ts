@@ -33,3 +33,32 @@ export const ping = async (config: ConfigProps) => {
     message(config, `Ping failed`, Status.FAILED, true);
   }
 };
+
+export const noteHwangTrade = async (config: ConfigProps, assetId: string, price: number) => {
+  if (assetId === '0') {
+    message(config, `Note sold item failed due to assetid = 0`, Status.FAILED);
+    return null;
+  }
+
+  try {
+    const url = `https://hwang-trade.vercel.app/api/item-trading/sell`;
+    await axios.post(
+      url,
+      {
+        asset_id: assetId,
+        sold_price: price,
+        sold_site: 'csgotm',
+      },
+      {
+        headers: {
+          'x-api-key': config.hwang.apikey,
+        },
+      },
+    );
+    message(config, `Note sold item successfully`, Status.SUCCESS);
+    return true;
+  } catch (error) {
+    message(config, `Note sold item failed due to ${error.message}`, Status.FAILED);
+    return null;
+  }
+};

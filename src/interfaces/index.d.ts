@@ -1,5 +1,8 @@
 export interface ConfigProps {
   name: string;
+  hwang: {
+    apikey: string;
+  };
   csgotm: {
     apikey: string;
   };

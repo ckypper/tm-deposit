@@ -4,6 +4,9 @@ import { ConfigProps } from '../interfaces/index';
 export const USER_CONFIG: ConfigProps[] = [
   {
     name: 'John', // To display in message
+    hwang: {
+      apikey: 'abxz',
+    },
     csgotm: {
       apikey: 'abcxyz', // CSGOTM APIKey, you can find in https://market.csgo.com/docs-v2,
     },
