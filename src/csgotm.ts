@@ -7,10 +7,11 @@ import { timeout } from './utils';
 
 const sellingItem: { id: string; name: string; assetid: string; price: number }[] = [];
 const senedOffer = [];
-let pingAPIInterval = null;
-let pingWSInterval = null;
 
 export const initCsgoTMSocket = async (config: ConfigProps) => {
+  let pingAPIInterval = null;
+  let pingWSInterval = null;
+
   const socket = new client();
 
   socket.on('connectFailed', function (error) {
