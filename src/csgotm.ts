@@ -1,6 +1,6 @@
 import { ConfigProps } from './interfaces';
 import { client } from 'websocket';
-import { getTradeRequest, getWsAuth, noteHwangTrade, ping } from './utils/csgotm';
+import { getTradeRequest, getWsAuth, noteHwangTrade, ping, relistItem } from './utils/csgotm';
 import { sendOffer } from './utils/steam';
 import { message, Status } from './utils/message';
 import { timeout } from './utils';
@@ -75,7 +75,8 @@ const onFulfilledItem = async (config: ConfigProps, id: number, status: number) 
         message(config, `Selling ${item.name} successfully`, Status.SUCCESS);
         break;
       case 6:
-        message(config, `Buyer not accept ${item.name}`, Status.FAILED);
+        message(config, `Selling ${item.name} failed`, Status.FAILED);
+        relistItem(config, item.assetid, item.price / 0.95, item.name);
         break;
     }
   }
@@ -85,6 +86,10 @@ const onSellingItem = async (config: ConfigProps, assetid: string, name: string,
   sellingItem.push({ id: tm_id, name, assetid, price });
   message(config, `Someone buying your ${name} for ${price}$`, Status.SUCCESS);
   await timeout(30000);
+  await handleTradeRequest(config, 0);
+};
+
+const handleTradeRequest = async (config: ConfigProps, count: number) => {
   const tradeRequest = await getTradeRequest(config);
 
   if (tradeRequest && tradeRequest.success) {
@@ -101,7 +106,11 @@ const onSellingItem = async (config: ConfigProps, assetid: string, name: string,
         tradeRequest.offers[i].tradeoffermessage,
       );
     }
+  } else if (count < 3) {
+    message(config, `Cannot get csgotm list offer retry in 5 second`, Status.FAILED);
+    await timeout(5000);
+    handleTradeRequest(config, count + 1);
   } else {
-    message(config, `Cannot get csgotm list offer`, Status.FAILED);
+    message(config, `Cannot get csgotm list offer retry too many time. Ignore the trade.`, Status.FAILED);
   }
 };

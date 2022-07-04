@@ -21,7 +21,7 @@ const sendProcess = async (config: ConfigProps, items: Item[], tradeUrl: string,
   }
   try {
     await send(offer);
-    message(config, `Create offer successfully`, Status.SUCCESS);
+    message(config, `Create offer successfully - Offer ID: ${offer.id}`, Status.SUCCESS);
     return offer;
   } catch (error) {
     if (retry === retryAttempt) {
@@ -41,7 +41,11 @@ const confirmProcess = async (config: ConfigProps, offer, items: Item[], retry: 
     await confirm(offer, config.steam.identitySecret, steam);
     message(config, `Confirm offer successfully`, Status.SUCCESS);
     setTimeout(() => {
-      offer.cancel();
+      offer.cancel((error) => {
+        if (!error) {
+          message(config, `Cancel offer ${offer.id} successfully`, Status.SUCCESS);
+        }
+      });
     }, cancelAfterTime * 60000);
   } catch (error) {
     if (retry === retryAttempt) {

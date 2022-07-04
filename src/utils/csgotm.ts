@@ -62,3 +62,31 @@ export const noteHwangTrade = async (config: ConfigProps, assetId: string, price
     return null;
   }
 };
+
+export const relistItem = async (config: ConfigProps, assetId: string, price: number, name: string) => {
+  if (assetId === '0') {
+    message(config, `Relist item failed due to assetid = 0`, Status.FAILED);
+    return null;
+  }
+
+  try {
+    const { data } = await axios.get('https://market.csgo.com/api/v2/add-to-sale', {
+      params: {
+        key: config.csgotm.apikey,
+        price: price * 1000,
+        cur: 'USD',
+        id: assetId,
+      },
+    });
+
+    if (data.success) {
+      message(config, `Relist item ${name} successfully with price: ${price}$`, Status.SUCCESS);
+    } else {
+      throw new Error(data.error);
+    }
+    return true;
+  } catch (error) {
+    message(config, `Relist item failed due to ${error.message}`, Status.FAILED);
+    return null;
+  }
+};
