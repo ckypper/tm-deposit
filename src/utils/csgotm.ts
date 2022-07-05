@@ -70,6 +70,7 @@ export const relistItem = async (config: ConfigProps, assetId: string, price: nu
   }
 
   try {
+    await reloadInventory(config);
     const { data } = await axios.get('https://market.csgo.com/api/v2/add-to-sale', {
       params: {
         key: config.csgotm.apikey,
@@ -87,6 +88,20 @@ export const relistItem = async (config: ConfigProps, assetId: string, price: nu
     return true;
   } catch (error) {
     message(config, `Relist item failed due to ${error.message}`, Status.FAILED);
+    return null;
+  }
+};
+
+export const reloadInventory = async (config: ConfigProps) => {
+  try {
+    const { data } = await axios.get('https://market.csgo.com/api/v2/update-inventory', {
+      params: {
+        key: config.csgotm.apikey,
+      },
+    });
+
+    return true;
+  } catch (error) {
     return null;
   }
 };
